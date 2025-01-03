@@ -82,12 +82,14 @@ ActivityWatcher.ActivityWatcher.getStackJson()
 ```kotlin
  ActivityWatcher.addActivityLifecycleCallback
 ```
+> 在具有生命周期的场景，推荐传入`LifecycleOwner`, 否则需要主动移除回调，防止内存泄漏
 
 ### 6、监听应用切后台切换
 
 ```kotlin
 ActivityWatcher.addAppVisibilityCallback
 ```
+> 在具有生命周期的场景，推荐传入`LifecycleOwner`, 否则需要主动移除回调，防止内存泄漏
 
 ### 7、方法列表
 
