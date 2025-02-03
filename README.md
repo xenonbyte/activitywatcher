@@ -38,12 +38,12 @@ val activityRecord:ActivityRecord? = ActivityWatcher.getStackTop()
 ```kotlin
 //如果栈顶Activity已销毁，execute方法不会执行
 ActivityWatcher.getStackTop()?.execute { 
-            //这里it就是Activity实例
-            //比如使用Activity弹窗
-            AlertDialog.Builder(it)
-                .setMessage("test dialog")
-                .show()
-        }
+    //这里it就是Activity实例
+    //比如使用Activity弹窗
+    AlertDialog.Builder(it)
+        .setMessage("test dialog")
+        .show()
+}
 ```
 
 **java用法**
