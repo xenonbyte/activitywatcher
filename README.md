@@ -65,7 +65,7 @@ if (record != null) {
 ### 4、获取完整Activity栈信息
 
 ```kotlin
-ActivityWatcher.ActivityWatcher.getStackJson()
+ActivityWatcher.getStackJson()
 ```
 
 **输出格式如下：**
