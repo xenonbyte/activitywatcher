@@ -140,7 +140,7 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.xenonbyte:activitywatcher:1.0.1'
+    implementation 'com.github.xenonbyte:activitywatcher:1.0.2'
 }
 ```
 
