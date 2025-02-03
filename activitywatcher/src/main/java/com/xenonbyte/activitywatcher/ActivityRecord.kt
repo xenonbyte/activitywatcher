@@ -67,11 +67,26 @@ class ActivityRecord private constructor(activity: Activity) {
      * [ActivityRecord]不对外暴露[Activity], 需要Activity实例做业务操作时，请使用该方法
      * 如果[activityState]是[ActivityState.DESTROYED]，任务不会执行
      *
-     * @param action activity任务
+     * @param block activity任务
      */
-    fun execute(action: (activity: Activity) -> Unit) {
+    @JvmSynthetic
+    fun execute(block: (activity: Activity) -> Unit) {
         getActivity()?.let {
-            action(it)
+            block(it)
+        }
+    }
+
+    /**
+     * 执行[Activity]任务
+     *
+     * [ActivityRecord]不对外暴露[Activity], 需要Activity实例做业务操作时，请使用该方法
+     * 如果[activityState]是[ActivityState.DESTROYED]，任务不会执行
+     *
+     * @param task activity任务
+     */
+    fun execute(task: Task) {
+        getActivity()?.let {
+            task.run(it)
         }
     }
 
@@ -153,4 +168,8 @@ class ActivityRecord private constructor(activity: Activity) {
     override fun toString(): String {
         return "${activityCanonicalName}(${activityState}, ${activityRecordId})"
     }
+}
+
+fun interface Task {
+    fun run(activity: Activity)
 }

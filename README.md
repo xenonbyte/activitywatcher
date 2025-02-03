@@ -33,15 +33,32 @@ val activityRecord:ActivityRecord? = ActivityWatcher.getStackTop()
 >
 > 为防止`Activity`不规范使用带来风险，同时保证`Activity`使用安全；`ActivityRecord`不会直接暴露栈顶`Activity`引用，通过`ActivityRecord.execute`可以安全的使用`Activity`
 
-```ko
+**kotlin用法**
+
+```kotlin
 //如果栈顶Activity已销毁，execute方法不会执行
 ActivityWatcher.getStackTop()?.execute { 
-            //这里this就是Activity
+            //这里it就是Activity实例
             //比如使用Activity弹窗
-            AlertDialog.Builder(this)
+            AlertDialog.Builder(it)
                 .setMessage("test dialog")
                 .show()
         }
+```
+
+**java用法**
+
+```java
+//如果栈顶Activity已销毁，execute方法不会执行
+ActivityRecord record = ActivityWatcher.getStackTop();
+if (record != null) {
+    record.execute(activity -> {
+        //比如使用Activity弹窗
+        new AlertDialog.Builder(activity)
+                .setMessage("test dialog")
+                .show();
+    });
+}
 ```
 
 
@@ -92,6 +109,10 @@ ActivityWatcher.addAppVisibilityCallback
 > 在具有生命周期的场景，推荐传入`LifecycleOwner`, 否则需要主动移除回调，防止内存泄漏
 
 ### 7、方法列表
+
+> [!NOTE]
+>
+> **Java调用时请注意返回值带`?`的方法，需要做空判断**
 
 | 方法名                                                       | 描述                                 |
 | ------------------------------------------------------------ | ------------------------------------ |

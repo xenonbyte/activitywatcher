@@ -64,7 +64,7 @@ class MainActivity : AppCompatActivity(), OnClickListener {
                 handler.postDelayed({
                     //safely use the top Activity to display a Dialog
                     ActivityWatcher.getStackTop()?.execute {
-                        AlertDialog.Builder(this)
+                        AlertDialog.Builder(it)
                             .setMessage("delay dialog")
                             .setCancelable(true)
                             .setPositiveButton("ok", object : DialogInterface.OnClickListener {
