@@ -6,5 +6,12 @@
         <item name="colorPrimaryDark">@color/sample_primary_dark</item>
         <item name="colorAccent">@color/sample_accent</item>
         <item name="android:windowBackground">@drawable/bg_sample_screen</item>
+        <item name="alertDialogTheme">@style/SampleAlertDialog</item>
+    </style>
+
+    <style name="SampleAlertDialog" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <item name="colorAccent">@color/sample_primary</item>
+        <item name="android:textColorPrimary">@color/sample_text_primary</item>
+        <item name="android:textColorSecondary">@color/sample_text_secondary</item>
     </style>
 </resources>

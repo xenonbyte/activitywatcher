@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="sample_primary">#15404E</color>
-    <color name="sample_primary_dark">#0C2830</color>
-    <color name="sample_accent">#E06B48</color>
-    <color name="sample_background_start">#F8F1E8</color>
-    <color name="sample_background_end">#D8E6E8</color>
-    <color name="sample_surface">#FDFBF7</color>
-    <color name="sample_text_primary">#18323A</color>
-    <color name="sample_text_secondary">#566F76</color>
-    <color name="sample_stroke">#2B5A68</color>
+    <color name="sample_primary">#1B6B5A</color>
+    <color name="sample_primary_dark">#0D3D32</color>
+    <color name="sample_accent">#D4853E</color>
+    <color name="sample_background_start">#F5F0EB</color>
+    <color name="sample_background_end">#E8E4DF</color>
+    <color name="sample_surface">#FFFFFF</color>
+    <color name="sample_text_primary">#1A2E35</color>
+    <color name="sample_text_secondary">#6B7E85</color>
+    <color name="sample_stroke">#B8C4C0</color>
     <color name="white">#FFFFFFFF</color>
 </resources>

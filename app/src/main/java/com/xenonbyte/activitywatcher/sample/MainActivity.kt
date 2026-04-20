@@ -61,6 +61,7 @@ class MainActivity : BaseSampleActivity() {
     private fun showDelayedDialog() {
         ActivityWatcher.getStackTop()?.execute { activity ->
             AlertDialog.Builder(activity)
+                .setTitle(R.string.dialog_delay_title)
                 .setMessage(R.string.dialog_delay_message)
                 .setCancelable(true)
                 .setPositiveButton(android.R.string.ok, null)

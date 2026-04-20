@@ -22,5 +22,6 @@
 
     <string name="toast_app_foreground">App entered foreground</string>
     <string name="toast_app_background">App entered background</string>
+    <string name="dialog_delay_title">Stack Top</string>
     <string name="dialog_delay_message">Delayed dialog rendered from the current stack top.</string>
 </resources>
