@@ -103,17 +103,15 @@ class ActivityTask internal constructor(val taskId: Int) {
      * @return 输出json字符串
      */
     fun toJsonString(): String {
-        val buffer = StringBuffer()
-        buffer.append("{")
-        buffer.append("\"taskId\"")
-        buffer.append(":")
-        buffer.append(taskId)
-        buffer.append(",")
-        buffer.append("\"stack\"")
-        buffer.append(":")
-        buffer.append(stack.toFullString())
-        buffer.append("}")
-        return buffer.toString()
+        return buildString {
+            append("{")
+            append("\"taskId\":")
+            append(taskId)
+            append(",")
+            append("\"stack\":")
+            append(stack.toFullString())
+            append("}")
+        }
     }
 
     override fun toString(): String {
@@ -129,19 +127,19 @@ class ActivityTask internal constructor(val taskId: Int) {
      * @return 输出字符串
      */
     private fun Stack<ActivityRecord>.toFullString(): String {
-        val buffer = StringBuffer()
-        buffer.append("[")
-        val size = size
-        withIndex().forEach { (index, activityRecord) ->
-            buffer.append("\"")
-            buffer.append(activityRecord.toString())
-            buffer.append("\"")
-            if (size - 1 != index) {
-                buffer.append(", ")
+        return buildString {
+            append("[")
+            val lastIndex = this@toFullString.lastIndex
+            this@toFullString.forEachIndexed { index, activityRecord ->
+                append("\"")
+                append(activityRecord.toString())
+                append("\"")
+                if (index != lastIndex) {
+                    append(", ")
+                }
             }
+            append("]")
         }
-        buffer.append("]")
-        return buffer.toString()
     }
 
 }

@@ -1,40 +1,32 @@
 package com.xenonbyte.activitywatcher.sample
 
 import android.content.Intent
-import android.os.Bundle
-import android.view.View
-import android.view.View.OnClickListener
-import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
-import com.xenonbyte.activitywatcher.ActivityWatcher
-import com.yuyh.jsonviewer.library.JsonRecyclerView
 
-class SingleInstanceActivity : AppCompatActivity(), OnClickListener {
-    private val nextBtn: Button by lazy {
-        findViewById(R.id.next_btn)
-    }
-    private val printTv: JsonRecyclerView by lazy {
-        findViewById(R.id.print_tv)
-    }
+class SingleInstanceActivity : BaseSampleActivity() {
+    override val screenTitleRes: Int = R.string.screen_single_instance_title
+    override val screenDescriptionRes: Int = R.string.screen_single_instance_description
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.layout_single_task_activity)
+    override val primaryAction: SampleAction
+        get() = SampleAction(R.string.action_back_to_single_top) {
+            startActivity(Intent(this, SingleTopActivity::class.java))
+        }
 
-        nextBtn.setOnClickListener(this)
-    }
+    override val secondaryAction: SampleAction
+        get() = SampleAction(R.string.action_finish_current) {
+            finish()
+        }
 
-    override fun onResume() {
-        super.onResume()
-        printTv.bindJson(ActivityWatcher.getStackJson())
-    }
-
-    override fun onClick(v: View?) {
-        when (v) {
-            nextBtn -> {
-                val intent = Intent(this, SingleTopActivity::class.java)
-                startActivity(intent)
-            }
+    override fun buildScenarioSummary(snapshot: WatcherSampleSnapshot): CharSequence {
+        val topRecordId = snapshot.topRecord?.activityRecordId ?: "N/A"
+        val isolationState = if (snapshot.taskCount > 1) {
+            "The watcher currently sees this screen isolated in its own task."
+        } else {
+            "Open this screen from another activity to observe task separation."
+        }
+        return buildString {
+            appendLine("This screen uses launchMode=singleInstance.")
+            appendLine("Current task count: ${snapshot.taskCount}, stack-top recordId: #$topRecordId.")
+            append(isolationState)
         }
     }
 }

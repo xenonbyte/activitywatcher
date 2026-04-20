@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import com.xenonbyte.activitywatcher.ActivityLifeCycleCallback
 import com.xenonbyte.activitywatcher.ActivityWatcher
+import com.xenonbyte.activitywatcher.AppVisibilityCallback
 
 class MyApplication : Application() {
     override fun onCreate() {
@@ -50,6 +51,15 @@ class MyApplication : Application() {
                 Log.d("ActivityWatcher", "Activity: $activity >> onSaveInstanceState(activityRecordId = $activityRecordId)")
             }
 
+        })
+        ActivityWatcher.addAppVisibilityCallback(callback = object : AppVisibilityCallback {
+            override fun onForeground() {
+                Log.d("ActivityWatcher", "Application >> onForeground()")
+            }
+
+            override fun onBackground() {
+                Log.d("ActivityWatcher", "Application >> onBackground()")
+            }
         })
     }
 }

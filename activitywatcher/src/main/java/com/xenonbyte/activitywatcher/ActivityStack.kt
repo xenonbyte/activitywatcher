@@ -65,17 +65,17 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
      * @return [ActivityStack]的Json字符串描述
      */
     internal fun getJson(): String {
-        val buffer = StringBuffer()
-        buffer.append("[")
-        val size = stack.size
-        stack.withIndex().forEach { (index, activityTask) ->
-            buffer.append(activityTask.toJsonString())
-            if (size - 1 != index) {
-                buffer.append(", ")
+        return buildString {
+            append("[")
+            val lastIndex = stack.lastIndex
+            stack.forEachIndexed { index, activityTask ->
+                append(activityTask.toJsonString())
+                if (index != lastIndex) {
+                    append(", ")
+                }
             }
+            append("]")
         }
-        buffer.append("]")
-        return buffer.toString()
     }
 
     /**
@@ -138,6 +138,14 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
         appVisibilityCallbackList.remove(callback)
     }
 
+    private inline fun dispatchActivityLifecycleCallback(block: (ActivityLifeCycleCallback) -> Unit) {
+        activityLifeCycleCallbackList.toList().forEach(block)
+    }
+
+    private inline fun dispatchAppVisibilityCallback(block: (AppVisibilityCallback) -> Unit) {
+        appVisibilityCallbackList.toList().forEach(block)
+    }
+
     override fun onActivityCreated(activity: Activity, savedInstanceState: Bundle?) {
         //Activity恢复
         savedInstanceState?.let {
@@ -148,7 +156,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
                     activity
                 )
             ) {
-                activityLifeCycleCallbackList.forEach {
+                dispatchActivityLifecycleCallback {
                     it.onCreate(activity, lastActivityRecordId, savedInstanceState, true)
                 }
                 return
@@ -170,7 +178,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
                 }
             }
         }
-        activityLifeCycleCallbackList.forEach {
+        dispatchActivityLifecycleCallback {
             it.onCreate(activity, activityRecord.activityRecordId, savedInstanceState, false)
         }
     }
@@ -178,12 +186,12 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
     override fun onActivityStarted(activity: Activity) {
         findActivityRecord(activity)?.apply {
             updateActivityState(ActivityState.STARTED)
-            activityLifeCycleCallbackList.forEach {
+            dispatchActivityLifecycleCallback {
                 it.onStart(activity, activityRecordId)
             }
             if (isAppBackground) {
                 isAppBackground = false
-                appVisibilityCallbackList.forEach {
+                dispatchAppVisibilityCallback {
                     it.onForeground()
                 }
             }
@@ -195,7 +203,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
             //Activity是栈顶Activity，直接更新状态
             if (this == getStackTop()) {
                 updateActivityState(ActivityState.RESUMED)
-                activityLifeCycleCallbackList.forEach {
+                dispatchActivityLifecycleCallback {
                     it.onResume(activity, activityRecordId)
                 }
                 return
@@ -216,7 +224,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
                     }
                 }
             }
-            activityLifeCycleCallbackList.forEach {
+            dispatchActivityLifecycleCallback {
                 it.onResume(activity, activityRecord.activityRecordId)
             }
         }
@@ -225,7 +233,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
     override fun onActivityPaused(activity: Activity) {
         findActivityRecord(activity)?.apply {
             updateActivityState(ActivityState.STARTED)
-            activityLifeCycleCallbackList.forEach {
+            dispatchActivityLifecycleCallback {
                 it.onPause(activity, activityRecordId)
             }
         }
@@ -234,12 +242,12 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
     override fun onActivityStopped(activity: Activity) {
         findActivityRecord(activity)?.apply {
             updateActivityState(ActivityState.CREATED)
-            activityLifeCycleCallbackList.forEach {
+            dispatchActivityLifecycleCallback {
                 it.onStop(activity, activityRecordId)
             }
-            if (!isAppForeground()) {
+            if (!activity.isChangingConfigurations && !isAppForeground()) {
                 isAppBackground = true
-                appVisibilityCallbackList.forEach {
+                dispatchAppVisibilityCallback {
                     it.onBackground()
                 }
             }
@@ -249,7 +257,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
     override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
         findActivityRecord(activity)?.apply {
             outState.putInt(ACTIVITY_RECORD_ID_RESTORE_KEY, activityRecordId)
-            activityLifeCycleCallbackList.forEach {
+            dispatchActivityLifecycleCallback {
                 it.onSaveInstanceState(activity, activityRecordId, outState)
             }
         }
@@ -269,7 +277,7 @@ class ActivityStack internal constructor() : ActivityEventRecevier {
                     }
                 }
             }
-            activityLifeCycleCallbackList.forEach {
+            dispatchActivityLifecycleCallback {
                 it.onDestroy(activity, activityRecordId, canRestore)
             }
         }

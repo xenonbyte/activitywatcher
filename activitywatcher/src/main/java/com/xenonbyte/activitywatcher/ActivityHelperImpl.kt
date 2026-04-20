@@ -28,11 +28,7 @@ internal class ActivityHelperImpl : ActivityHelper {
     }
 
     override fun getActivityStackCount(): Int {
-        var size = 0
-        activityStack.getActivityTaskStack().forEach {
-            size += (it.stack.size)
-        }
-        return size
+        return activityStack.getActivityTaskStack().sumOf { it.stack.size }
     }
 
     /**
@@ -41,7 +37,7 @@ internal class ActivityHelperImpl : ActivityHelper {
      * @author xubo
      */
     class IDGenerator {
-        private var id: AtomicInteger = AtomicInteger(0)
+        private val id = AtomicInteger(0)
 
         /**
          * 生成唯一标识id
@@ -49,11 +45,7 @@ internal class ActivityHelperImpl : ActivityHelper {
          * @return 唯一标识id
          */
         fun generateId(): Int {
-            var oldId: Int = id.get()
-            while (!id.compareAndSet(oldId, oldId + 1)) {
-                oldId = id.get()
-            }
-            return id.get()
+            return id.incrementAndGet()
         }
     }
 }

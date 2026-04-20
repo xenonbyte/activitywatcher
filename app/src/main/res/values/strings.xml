@@ -1,3 +1,26 @@
 <resources>
     <string name="app_name">ActivityWatcherSample</string>
+    <string name="sample_snapshot_title">Watcher Snapshot</string>
+    <string name="sample_scenario_title">What This Screen Proves</string>
+    <string name="sample_actions_title">Try It</string>
+    <string name="sample_stack_title">Current Activity Stack JSON</string>
+
+    <string name="screen_main_title">MainActivity / Standard Launch</string>
+    <string name="screen_main_description">Start from a normal activity, open other launch modes, schedule a delayed dialog with the real stack top, or recreate the page to verify the watcher state stays coherent.</string>
+    <string name="screen_single_top_title">SingleTopActivity / Reuse Top Instance</string>
+    <string name="screen_single_top_description">Launch this page again while it is already on top. A correct watcher should keep the same logical record instead of pushing a duplicate screen.</string>
+    <string name="screen_single_instance_title">SingleInstanceActivity / Dedicated Task</string>
+    <string name="screen_single_instance_description">This page runs in its own task. Use it to inspect how ActivityWatcher represents cross-task navigation in the stack JSON.</string>
+
+    <string name="action_open_single_top">Open SingleTopActivity</string>
+    <string name="action_show_delay_dialog">Show Delayed Dialog (3s)</string>
+    <string name="action_recreate_main">Recreate MainActivity</string>
+    <string name="action_launch_single_top_self">Launch SingleTop Again</string>
+    <string name="action_open_single_instance">Open SingleInstanceActivity</string>
+    <string name="action_finish_current">Finish Current Activity</string>
+    <string name="action_back_to_single_top">Open SingleTopActivity</string>
+
+    <string name="toast_app_foreground">App entered foreground</string>
+    <string name="toast_app_background">App entered background</string>
+    <string name="dialog_delay_message">Delayed dialog rendered from the current stack top.</string>
 </resources>

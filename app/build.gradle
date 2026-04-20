@@ -5,14 +5,14 @@ plugins {
 
 android {
     namespace 'com.xenonbyte.activitywatcher.sample'
-    compileSdk 34
+    compileSdk libs.versions.compile.sdk.get().toInteger()
 
     defaultConfig {
         applicationId "com.xenonbyte.activitywatcher.sample"
         minSdk 24
-        targetSdk 34
+        targetSdk libs.versions.target.sdk.get().toInteger()
         versionCode 1
-        versionName "1.0"
+        versionName "1.0.3"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -34,8 +34,12 @@ android {
 
 dependencies {
     implementation libs.androidx.appcompat
-    implementation "androidx.constraintlayout:constraintlayout:2.1.4"
-    implementation 'com.github.smuyyh:JsonViewer:1.0.7'
+    implementation libs.androidx.constraintlayout
+    implementation libs.jsonviewer
 
     implementation project(path: ':activitywatcher')
+
+    androidTestImplementation libs.androidx.test.ext.junit
+    androidTestImplementation libs.androidx.test.runner
+    androidTestImplementation libs.androidx.test.core
 }

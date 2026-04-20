@@ -101,12 +101,24 @@ ActivityWatcher.getStackJson()
 ```
 > 在具有生命周期的场景，推荐传入`LifecycleOwner`, 否则需要主动移除回调，防止内存泄漏
 
+> 当传入`LifecycleOwner`时，回调会在`ON_DESTROY`后自动解绑
+
 ### 6、监听应用切后台切换
 
 ```kotlin
 ActivityWatcher.addAppVisibilityCallback
 ```
 > 在具有生命周期的场景，推荐传入`LifecycleOwner`, 否则需要主动移除回调，防止内存泄漏
+
+> 当传入`LifecycleOwner`时，回调会在`ON_DESTROY`后自动解绑
+
+## 行为说明
+
+- `activityRecordId` 在配置变更或 `Activity.recreate()` 后保持不变，可用于标识同一个逻辑页面实例
+- `isExist(activity)` 会检查整个应用内全部 task / stack，而不是只检查当前栈顶 `Activity`
+- `addAppVisibilityCallback` 已排除配置变更场景，旋转屏幕或 `recreate()` 不会触发错误的 `onBackground()` / `onForeground()`
+- `singleTop`、`singleInstance` 等多任务栈场景可通过 `getStackJson()` 正确反映
+- `ActivityWatcher` 的应用前后台判断基于当前维护的 `Activity` 栈状态，不等价于 `ProcessLifecycleOwner`
 
 ### 7、方法列表
 
@@ -140,9 +152,22 @@ repositories {
 }
 
 dependencies {
-    implementation 'com.github.xenonbyte:activitywatcher:1.0.2'
+    implementation 'com.github.xenonbyte:activitywatcher:1.0.3'
 }
 ```
+
+## 验证
+
+- `./gradlew :activitywatcher:assemble :app:assembleDebug`
+- `./gradlew :activitywatcher:lint :app:lintDebug`
+- `./gradlew :app:connectedDebugAndroidTest`
+
+已在真机上通过以下 instrumentation 场景：
+
+- 非栈顶 `Activity` 的 `isExist(activity)` 判定
+- `LifecycleOwner` 销毁后的自动解绑
+- `recreate()` / 配置变更下应用前后台回调不抖动
+- `singleInstance` Activity 的独立 task 行为
 
 
 
@@ -161,4 +186,3 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
-

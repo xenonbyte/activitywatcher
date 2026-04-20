@@ -59,7 +59,7 @@ class ActivityRecord private constructor(activity: Activity) {
     /**
      * [Activity]全路径名
      */
-    val activityCanonicalName: String = activity.javaClass.canonicalName
+    val activityCanonicalName: String = activity.javaClass.canonicalName ?: activity.javaClass.name
 
     /**
      * 执行[Activity]任务
@@ -149,7 +149,7 @@ class ActivityRecord private constructor(activity: Activity) {
      * @return [Activity]状态
      */
     private fun checkActivityState() {
-        activityReference.get() ?: let {
+        if (activityReference.get() == null) {
             activityState = ActivityState.DESTROYED
         }
     }

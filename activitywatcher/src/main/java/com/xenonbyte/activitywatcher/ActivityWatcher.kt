@@ -3,9 +3,12 @@ package com.xenonbyte.activitywatcher
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import java.util.concurrent.CountDownLatch
 
 /**
  * Activity观察
@@ -19,6 +22,51 @@ class ActivityWatcher private constructor() {
 
     companion object {
         private fun getInstance() = Holder.INSTANCE
+
+        private val mainHandler = Handler(Looper.getMainLooper())
+
+        @Suppress("UNCHECKED_CAST")
+        private fun <T> runOnMainThread(block: () -> T): T {
+            if (Looper.myLooper() == Looper.getMainLooper()) {
+                return block()
+            }
+            var failure: Throwable? = null
+            var result: Any? = null
+            val latch = CountDownLatch(1)
+            mainHandler.post {
+                try {
+                    result = block()
+                } catch (throwable: Throwable) {
+                    failure = throwable
+                } finally {
+                    latch.countDown()
+                }
+            }
+            latch.await()
+            failure?.let { throw it }
+            return result as T
+        }
+
+        private fun addOwnerScopedCallback(
+            owner: LifecycleOwner,
+            register: () -> Unit,
+            unregister: () -> Unit
+        ) {
+            runOnMainThread {
+                if (owner.lifecycle.currentState == Lifecycle.State.DESTROYED) {
+                    return@runOnMainThread
+                }
+                register()
+                owner.lifecycle.addObserver(object : LifecycleEventObserver {
+                    override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
+                        if (event == Lifecycle.Event.ON_DESTROY) {
+                            source.lifecycle.removeObserver(this)
+                            unregister()
+                        }
+                    }
+                })
+            }
+        }
 
         /**
          * [ActivityWatcher]初始化
@@ -95,7 +143,7 @@ class ActivityWatcher private constructor() {
             val watcher = getInstance()
             watcher.check()
             val activityStack = watcher.helper.getActivityStack()
-            return activityStack.getActivityTaskStack().peekOrNull()?.stack?.peekOrNull()?.match(activity) ?: false
+            return activityStack.findActivityRecord(activity) != null
         }
 
         /**
@@ -103,6 +151,7 @@ class ActivityWatcher private constructor() {
          *
          * @return [ActivityRecord]实例
          */
+        @JvmStatic
         fun getActivityRecord(activity: Activity): ActivityRecord? {
             val watcher = getInstance()
             watcher.check()
@@ -115,6 +164,7 @@ class ActivityWatcher private constructor() {
          *
          * @return [ActivityRecord]实例
          */
+        @JvmStatic
         fun getActivityRecord(activityRecordId: Int): ActivityRecord? {
             val watcher = getInstance()
             watcher.check()
@@ -149,14 +199,10 @@ class ActivityWatcher private constructor() {
             val watcher = getInstance()
             watcher.check()
             val activityStack = watcher.helper.getActivityStack()
-            activityStack.addActivityLifeCycleCallback(callback)
-            owner.lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    source.lifecycle.removeObserver(this)
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        activityStack.removeActivityLifeCycleCallback(callback)
-                    }
-                }
+            addOwnerScopedCallback(owner = owner, register = {
+                activityStack.addActivityLifeCycleCallback(callback)
+            }, unregister = {
+                activityStack.removeActivityLifeCycleCallback(callback)
             })
         }
 
@@ -170,7 +216,9 @@ class ActivityWatcher private constructor() {
             val watcher = getInstance()
             watcher.check()
             val activityStack = watcher.helper.getActivityStack()
-            activityStack.removeActivityLifeCycleCallback(callback)
+            runOnMainThread {
+                activityStack.removeActivityLifeCycleCallback(callback)
+            }
         }
 
         /**
@@ -187,14 +235,10 @@ class ActivityWatcher private constructor() {
             val watcher = getInstance()
             watcher.check()
             val activityStack = watcher.helper.getActivityStack()
-            activityStack.addAppVisibilityCallback(callback)
-            owner.lifecycle.addObserver(object : LifecycleEventObserver {
-                override fun onStateChanged(source: LifecycleOwner, event: Lifecycle.Event) {
-                    source.lifecycle.removeObserver(this)
-                    if (event == Lifecycle.Event.ON_DESTROY) {
-                        activityStack.removeAppVisibilityCallback(callback)
-                    }
-                }
+            addOwnerScopedCallback(owner = owner, register = {
+                activityStack.addAppVisibilityCallback(callback)
+            }, unregister = {
+                activityStack.removeAppVisibilityCallback(callback)
             })
         }
 
@@ -208,7 +252,9 @@ class ActivityWatcher private constructor() {
             val watcher = getInstance()
             watcher.check()
             val activityStack = watcher.helper.getActivityStack()
-            activityStack.removeAppVisibilityCallback(callback)
+            runOnMainThread {
+                activityStack.removeAppVisibilityCallback(callback)
+            }
         }
 
         /**
@@ -268,10 +314,6 @@ class ActivityWatcher private constructor() {
                     AppLifecycleOwner.get().handleLifecycleEvent(Lifecycle.Event.ON_PAUSE)
                 }
                 helper.getActivityStack().onActivityPaused(activity)
-                if (activity.isFinishing) {
-                    helper.getActivityStack().onActivityStopped(activity)
-                    helper.getActivityStack().onActivityDestroyed(activity)
-                }
             }
 
             override fun onActivityStopped(activity: Activity) {
@@ -299,7 +341,7 @@ class ActivityWatcher private constructor() {
      */
     private fun check() {
         if (!isInitialize) {
-            throw ActivityWatcherUninitializedException();
+            throw ActivityWatcherUninitializedException()
         }
     }
 
